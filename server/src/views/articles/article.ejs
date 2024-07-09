@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <title>
+    <%= article.title %>
+  </title>
+</head>
+
+<body class="<%= theme %>">
+  <div class="container">
+    <h2>
+      <%= article.title %>
+    </h2>
+    <p>
+      <%= article.content %>
+    </p>
+    <button onclick="goBack()">back</button>
+  </div>
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+</body>
+
+</html>

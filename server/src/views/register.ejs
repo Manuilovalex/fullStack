@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <title>Register</title>
+  <style>
+    .error-message {
+      color: red;
+    }
+  </style>
+</head>
+
+<body class="<%= theme %>">
+  <div class="container">
+    <h1>Register</h1>
+    <% if (error_messages.length> 0) { %>
+      <ul style="color: red;">
+        <% error_messages.forEach(function(error) { %>
+          <li>
+            <%= error %>
+          </li>
+          <% }) %>
+      </ul>
+      <% } %>
+        <form id="registerForm" action="/register" method="post">
+          <div>
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" placeholder="Enter username..." required>
+          </div>
+          <div>
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" placeholder="Enter email..." required>
+          </div>
+          <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter password..." required>
+          </div>
+          <div>
+            <label for="confirm-password">Confirm Password:</label>
+            <input type="password" id="confirm-password" name="confirm-password" placeholder="Enter confirm-password..." required>
+          </div>
+          <button type="submit">Register</button>
+        </form>
+        <button onclick="goBack()">back</button>
+  </div>
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', function (event) {
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const errorMessageDiv = document.querySelector('.error-message');
+
+      if (password !== confirmPassword) {
+        event.preventDefault();
+        if (!errorMessageDiv) {
+          const newErrorDiv = document.createElement('div');
+          newErrorDiv.className = 'error-message';
+          newErrorDiv.innerHTML = '<p>Passwords do not match.</p>';
+          this.insertBefore(newErrorDiv, this.firstChild);
+        } else {
+          errorMessageDiv.innerHTML = '<p>Passwords do not match.</p>';
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

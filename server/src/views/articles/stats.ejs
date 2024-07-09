@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <title>Article Stats</title>
+</head>
+<body class="<%= theme %>">
+  <div class="container">
+    <h1>Articles Stats</h1>
+    <ul>
+      <li>Average Content Length: <%= avgContentLength.toFixed(2) %> characters</li>
+      <li>Total Number of Articles: <%= count %>
+      </li>
+    </ul>
+    <div>
+      <a href="/articles" class="authLink">
+        <button>Back to Articles</button>
+      </a>
+    </div>
+  </div>
+</body>
+
+</html>

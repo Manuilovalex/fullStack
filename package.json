@@ -1,0 +1,15 @@
+{
+  "name": "fullstack-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "client:install": "cd client && yarn install",
+    "server:install": "cd server && yarn install",
+    "install": "yarn client:install && yarn server:install",
+    "client:build": "cd client && yarn build",
+    "server:start": "cd server && yarn start",
+    "start": "yarn client:build && yarn server:start",
+    "client:dev": "cd client && yarn dev",
+    "server:dev": "cd server && yarn start"
+  }
+}

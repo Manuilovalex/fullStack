@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <title>Express/Articles</title>
+</head>
+
+<body class="<%= theme %>">
+  <div class="container">
+    <h1>App Express & EJS</h1>
+    <h2>Articles</h2>
+    <a href="/articles/stats" class="statsLink">
+      <button>Articles Stats</button>
+    </a>
+    <ul>
+      <% articles.forEach(article=> { %>
+        <li><a href="/articles/<%= article._id %>">
+            <%= article.title %>
+          </a></li>
+        <% }) %>
+    </ul>
+    <div class="pagination">
+      <% if (page> 1) { %>
+        <a href="/articles?page=<%= page - 1 %>&limit=<%= pageSize %>" class="prev">Prev</a>
+        <% } %>
+
+          <% if (articles.length===pageSize) { %>
+            <a href="/articles?page=<%= page + 1 %>&limit=<%= pageSize %>" class="next">Next</a>
+            <% } %>
+    </div>
+    <button onclick="goBack()">back</button>
+  </div>
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+</body>
+
+</html>

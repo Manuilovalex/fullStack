@@ -1,0 +1,18 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    link(rel="stylesheet", href="/css/style.css")
+    link(rel="icon", href="/favicon.png", type="image/png")
+    title User Stats
+  body(class=theme)
+    .container
+      h1 User Statistics
+      ul
+        li Average Age: #{avgAge.toFixed(2)}
+        li Total Number of Users: #{totalUsers}
+        li Number of Unique Emails: #{uniqueEmailCount}
+      div
+        a(href="/users" class="authLink")
+          button Back to Users

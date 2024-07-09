@@ -1,0 +1,126 @@
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+body.light {
+  background-color: #dad5d5;
+  color: #333;
+}
+
+body.dark {
+  background-color: #333;
+  color: #d4d1d1;
+  a {
+    color: #d4d1d1;
+  }
+  a:hover {
+    color: #8a8787;
+  }
+}
+
+.container {
+  text-align: center;
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+body.dark .container {
+  background-color: #444;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-size: 2em;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin: 10px 0;
+}
+
+a {
+  text-decoration: none;
+  color: #1b1b1b;
+  font-size: 1em;
+}
+
+a:hover {
+  color: #8a8787;
+}
+
+button {
+  margin: 15px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #5ca1cc;
+  color: #fff;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+button.authLink {
+  width: 100px;
+}
+
+button:hover {
+  background-color: #82bcdb;
+}
+
+form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+
+label {
+  margin-bottom: 10px;
+  width: 100%;
+  text-align: left;
+}
+
+input,
+select {
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+select {
+  font-size: 1.2em;
+}
+
+.authLink {
+  display: inline-block;
+  margin: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+.prev,
+.next {
+  color: #5ca1cc;
+  margin: 15px;
+  padding: 15px;
+}

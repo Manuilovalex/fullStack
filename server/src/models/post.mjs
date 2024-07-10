@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const articleSchema = new mongoose.Schema(
+const postSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -14,6 +14,6 @@ const articleSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
-const Article = mongoose.model('Article', articleSchema)
+const Post = mongoose.model('Post', postSchema)
 
-export { Article }
+export { Post }

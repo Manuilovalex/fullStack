@@ -13,7 +13,7 @@ import { errorHandler } from './middlewares/errorHandler.mjs'
 import { logger } from './middlewares/logger.mjs'
 import { ensureAuthenticated } from './middlewares/authMiddleware.mjs'
 import usersRouter from './routes/users.mjs'
-import articlesRouter from './routes/articles.mjs'
+import postsRouter from './routes/posts.mjs'
 import { connectDB } from './config/mongoConfig.mjs'
 import dotenv from 'dotenv'
 
@@ -32,7 +32,8 @@ app.use(logger)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
-app.use(express.static(join(__dirname, '../../client/dist')))
+app.use(express.static(join(__dirname, 'public')))
+// app.use(express.static(join(__dirname, '../../client/dist')))
 
 app.set('views', join(__dirname, 'views'))
 app.engine('ejs', ejs.renderFile)
@@ -81,7 +82,7 @@ app.use((req, res, next) => {
 })
 
 app.use('/users', ensureAuthenticated, usersRouter)
-app.use('/articles', ensureAuthenticated, articlesRouter)
+app.use('/posts', ensureAuthenticated, postsRouter)
 
 app.get('/', (req, res) => {
   console.log('User:', req.user)
@@ -96,9 +97,9 @@ app.post('/theme', (req, res) => {
   res.redirect('back')
 })
 
-app.get('*', (req, res) => {
-  res.sendFile(join(__dirname, '../../client/dist', 'index.html'))
-})
+// app.get('*', (req, res) => {
+//   res.sendFile(join(__dirname, '../../client/dist', 'index.html'))
+// })
 
 app.use((req, res, next) => {
   const error = new Error('Route not found')

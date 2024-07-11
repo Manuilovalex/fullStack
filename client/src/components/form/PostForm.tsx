@@ -8,45 +8,43 @@ interface PostFormProps {
 
 const PostForm = ({ onSubmit, postToEdit }: PostFormProps) => {
   const [title, setTitle] = useState('')
-  const [body, setBody] = useState('')
-  const [userId, setUserId] = useState<number>(0)
+  const [content, setContent] = useState('')
 
   useEffect(() => {
     if (postToEdit) {
       setTitle(postToEdit.title || '')
-      setBody(postToEdit.body || '')
-      setUserId(postToEdit.userId ?? 0)
+      setContent(postToEdit.content || '')
     }
   }, [postToEdit])
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    const newPostData: Partial<PostInterface> = { title, body, userId }
+    const newPostData: Partial<PostInterface> = { title, content }
     onSubmit(newPostData)
     setTitle('')
-    setBody('')
-    setUserId(0)
+    setContent('')
   }
 
   return (
     <form onSubmit={handleSubmit} className="post-form">
-      <h3>Add new post</h3>
+      <h3>{postToEdit ? 'Update Post' : 'Add new post'}</h3>
       <div className="form-group">
         <label htmlFor="title">Title:</label>
-        <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Enter title..." required />
-      </div>
-      <div className="form-group">
-        <label htmlFor="body">Body:</label>
-        <textarea id="body" value={body} onChange={(e) => setBody(e.target.value)} placeholder="Enter body..." required />
-      </div>
-      <div className="form-group">
-        <label htmlFor="userId">User ID:</label>
         <input
-          id="userId"
-          type="number"
-          value={userId !== undefined ? userId : ''}
-          onChange={(e) => setUserId(Number(e.target.value))}
-          placeholder="Enter user ID..."
+          id="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter title..."
+          required
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="body">Content:</label>
+        <textarea
+          id="body"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Enter content..."
           required
         />
       </div>

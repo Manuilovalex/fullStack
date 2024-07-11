@@ -15,7 +15,7 @@ import {
 } from '../redux/slices/usersSlice'
 import { UserInterface } from '../types/User.interface'
 
-const Users = () => {
+const UsersPage = () => {
   const dispatch = useDispatch()
   const users = useSelector(selectUsers)
   const isLoading = useSelector(selectUsersLoading)
@@ -24,35 +24,35 @@ const Users = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
-    dispatch(fetchAllUsers('https://jsonplaceholder.typicode.com/users?_limit=5') as any)
+    dispatch(fetchAllUsers() as any)
   }, [dispatch])
 
-  const handleAddUser = (newUser: Partial<UserInterface>) => {
-    dispatch(addUser(newUser))
-    setIsModalOpen(false)
+  const handleAddUser = () => {
+    setIsModalOpen(true)
+    setEditingUser(null)
+  }
+
+  const handleEditUserClick = (user: UserInterface) => {
+    setIsModalOpen(true)
+    setEditingUser(user)
   }
 
   const handleDeleteUser = (userId: number) => {
-    dispatch(deleteUser(userId))
-  }
-
-  const handleEditUser = (user: UserInterface) => {
-    setEditingUser(user)
-    setIsModalOpen(true)
+    dispatch(deleteUser(userId) as any)
   }
 
   const handleUpdateUser = (updatedUser: Partial<UserInterface>) => {
-    if (editingUser && editingUser.id !== undefined) {
+    if (editingUser && editingUser._id !== undefined) {
+      const { _id, ...updatedData } = updatedUser
+
       const updatedUserData: UserInterface = {
-        id: editingUser.id,
-        name: updatedUser.name || editingUser.name || '',
-        username: updatedUser.username || editingUser.username || '',
-        email: updatedUser.email || editingUser.email || '',
-        phone: updatedUser.phone || editingUser.phone || '',
-        website: updatedUser.website || editingUser.website || ''
+        _id: editingUser._id,
+        username: updatedData.username || editingUser.username || '',
+        age: updatedData.age || editingUser.age || 0,
+        email: updatedData.email || editingUser.email || ''
       }
 
-      dispatch(updateUser(updatedUserData))
+      dispatch(updateUser(updatedUserData)as any)
       setEditingUser(null)
       setIsModalOpen(false)
     }
@@ -63,11 +63,20 @@ const Users = () => {
     setEditingUser(null)
   }
 
+  const handleAddOrUpdateUser = (newUserData: Partial<UserInterface>) => {
+    if (editingUser) {
+      handleUpdateUser(newUserData as UserInterface)
+    } else {
+      dispatch(addUser(newUserData as Partial<UserInterface>) as any)
+      setIsModalOpen(false)
+    }
+  }
+
   return (
     <div className="users-page">
       <h1>Users Page</h1>
       <div className="centered">
-        <button className="button-post" onClick={() => setIsModalOpen(true)}>
+        <button className="button-user" onClick={handleAddUser}>
           Add new User
         </button>
       </div>
@@ -75,32 +84,32 @@ const Users = () => {
       {error && <h2 className="error">{error}</h2>}
       {!isLoading && !error && (
         <ul className="users-list">
-          {!!users?.length &&
-            users.map((user: UserInterface) => (
-              <li key={user.id}>
-                <div>
-                  <strong>{user.name}</strong>
-                  <p>{user.email}</p>
-                </div>
-                <div className="button-icons">
-                  <button onClick={() => handleEditUser(user)}>
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button onClick={() => handleDeleteUser(user.id)}>
-                    <FontAwesomeIcon icon={faTrashAlt} />
-                  </button>
-                </div>
-              </li>
-            ))}
+          {users.map((user: UserInterface) => (
+            <li key={user._id}>
+              <div>
+                <strong>Name: {user.username}</strong>
+                <p>Age: {user.age}</p>
+                <p>Email: {user.email}</p>
+              </div>
+              <div className="button-icons">
+                <button onClick={() => handleEditUserClick(user)}>
+                  <FontAwesomeIcon icon={faEdit} />
+                </button>
+                <button onClick={() => handleDeleteUser(user._id)}>
+                  <FontAwesomeIcon icon={faTrashAlt} />
+                </button>
+              </div>
+            </li>
+          ))}
         </ul>
       )}
       {isModalOpen && (
         <Modal onClose={handleModalClose}>
-          <UserForm onSubmit={editingUser ? handleUpdateUser : handleAddUser} userToEdit={editingUser} />
+          <UserForm onSubmit={handleAddOrUpdateUser} userToEdit={editingUser} />
         </Modal>
       )}
     </div>
   )
 }
 
-export default Users
+export default UsersPage

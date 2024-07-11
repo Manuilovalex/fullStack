@@ -1,6 +1,5 @@
 export interface PostInterface {
-  id: number
-  userId: number
+  _id: string
   title: string
-  body: string
+  content: string
 }

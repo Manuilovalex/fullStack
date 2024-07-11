@@ -20,11 +20,11 @@ const PostsPage = () => {
   const posts = useSelector(selectPosts)
   const isLoading = useSelector(selectPostsLoading)
   const error = useSelector(selectPostsError)
-  const [editingPost, setEditingPost] = useState<Partial<PostInterface> | null>(null)
+  const [editingPost, setEditingPost] = useState<PostInterface | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
-    dispatch(fetchAllPosts('https://jsonplaceholder.typicode.com/posts?_limit=5') as any)
+    dispatch(fetchAllPosts() as any)
   }, [dispatch])
 
   const handleAddPost = () => {
@@ -37,19 +37,21 @@ const PostsPage = () => {
     setEditingPost(post)
   }
 
-  const handleDeletePost = (postId: number) => {
-    dispatch(deletePost(postId))
+  const handleDeletePost = (postId: string) => {
+    dispatch(deletePost(postId) as any)
   }
 
   const handleUpdatePost = (updatedPost: Partial<PostInterface>) => {
-    if (editingPost && editingPost.id !== undefined) {
+    if (editingPost && editingPost._id !== undefined) {
+      const { _id, ...updatedData } = updatedPost
+
       const updatedPostData: PostInterface = {
-        id: editingPost.id,
-        userId: updatedPost.userId ?? editingPost.userId ?? 0,
-        title: updatedPost.title || editingPost.title || '',
-        body: updatedPost.body || editingPost.body || ''
+        _id: editingPost._id,
+        title: updatedData.title || editingPost.title || '',
+        content: updatedData.content || editingPost.content || ''
       }
-      dispatch(updatePost(updatedPostData))
+
+      dispatch(updatePost(updatedPostData) as any)
       setEditingPost(null)
       setIsModalOpen(false)
     }
@@ -62,9 +64,9 @@ const PostsPage = () => {
 
   const handleAddOrUpdatePost = (newPostData: Partial<PostInterface>) => {
     if (editingPost) {
-      handleUpdatePost(newPostData)
+      handleUpdatePost(newPostData as PostInterface)
     } else {
-      dispatch(addPost(newPostData))
+      dispatch(addPost(newPostData as Partial<PostInterface>) as any)
       setIsModalOpen(false)
     }
   }
@@ -82,16 +84,16 @@ const PostsPage = () => {
       {!isLoading && !error && (
         <ul className="posts-list">
           {posts.map((post: PostInterface) => (
-            <li key={post.id}>
+            <li key={post._id}>
               <div>
                 <strong>{post.title}</strong>
-                <p>{post.body}</p>
+                <p>{post.content}</p>
               </div>
               <div className="button-icons">
                 <button onClick={() => handleEditPostClick(post)}>
                   <FontAwesomeIcon icon={faEdit} />
                 </button>
-                <button onClick={() => handleDeletePost(post.id)}>
+                <button onClick={() => handleDeletePost(post._id)}>
                   <FontAwesomeIcon icon={faTrashAlt} />
                 </button>
               </div>

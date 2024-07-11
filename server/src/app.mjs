@@ -1,12 +1,13 @@
 import express from 'express'
+import cors from 'cors'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
 import flash from 'connect-flash'
-import ejs from 'ejs'
-import pug from 'pug'
+// import ejs from 'ejs'
+// import pug from 'pug'
 import { passport } from './config/passport-config.mjs'
 import authRouter from './routes/authRoutes.mjs'
 import { errorHandler } from './middlewares/errorHandler.mjs'
@@ -25,6 +26,13 @@ const __dirname = dirname(__filename)
 const app = express()
 const PORT = process.env.PORT || 3000
 
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+  })
+)
+
 connectDB()
 
 app.use(morgan('dev'))
@@ -35,17 +43,17 @@ app.use(cookieParser())
 app.use(express.static(join(__dirname, 'public')))
 // app.use(express.static(join(__dirname, '../../client/dist')))
 
-app.set('views', join(__dirname, 'views'))
-app.engine('ejs', ejs.renderFile)
-app.engine('pug', pug.renderFile)
-app.set('view engine', 'ejs')
+// app.set('views', join(__dirname, 'views'))
+// app.engine('ejs', ejs.renderFile)
+// app.engine('pug', pug.renderFile)
+// app.set('view engine', 'ejs')
 
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'key',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }
+    cookie: { secure: false, sameSite: 'none'  }
   })
 )
 
@@ -60,13 +68,13 @@ app.use((req, res, next) => {
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.use((req, res, next) => {
-  res.locals.theme = req.cookies.theme || 'light'
-  res.locals.error = req.flash('error')
-  res.locals.success = req.flash('success')
-  res.locals.user = req.user || null
-  next()
-})
+// app.use((req, res, next) => {
+//   res.locals.theme = req.cookies.theme || 'light'
+//   res.locals.error = req.flash('error')
+//   res.locals.success = req.flash('success')
+//   res.locals.user = req.user || null
+//   next()
+// })
 
 app.use((req, res, next) => {
   console.log('Current session:', req.session)
@@ -90,12 +98,12 @@ app.get('/', (req, res) => {
   res.render('index', { user: req.user })
 })
 
-app.post('/theme', (req, res) => {
-  const { theme } = req.body
-  res.cookie('theme', theme, { maxAge: 900000, httpOnly: true })
-  req.session.theme = theme
-  res.redirect('back')
-})
+// app.post('/theme', (req, res) => {
+//   const { theme } = req.body
+//   res.cookie('theme', theme, { maxAge: 900000, httpOnly: true })
+//   req.session.theme = theme
+//   res.redirect('back')
+// })
 
 // app.get('*', (req, res) => {
 //   res.sendFile(join(__dirname, '../../client/dist', 'index.html'))

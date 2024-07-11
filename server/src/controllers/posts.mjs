@@ -1,18 +1,15 @@
-import { ObjectId } from 'mongodb'
-
-import { connectDB } from '../config/mongoConfig.mjs'
+import { Post } from '../models/post.mjs'
 
 export const createPostOrPosts = async (req, res, next) => {
   try {
-    const db = await connectDB()
-    const posts = db.collection('posts')
     if (Array.isArray(req.body)) {
-      const result = await posts.insertMany(req.body)
-      const insertedIds = Object.values(result.insertedIds).map((id) => id.toString())
-      res.status(201).send(`Posts created with id's: ${insertedIds.join(', ')}`)
+      const result = await Post.insertMany(req.body)
+      const insertedIds = result.map((doc) => doc._id.toString())
+      res.status(201).json({ message: 'Posts created', ids: insertedIds })
     } else {
-      const result = await posts.insertOne(req.body)
-      res.status(201).send(`Post created with id: ${result.insertedId.toString()}`)
+      const post = new Post(req.body)
+      const result = await post.save()
+      res.status(201).json({ message: 'Post created', id: result._id.toString() })
     }
   } catch (error) {
     next(error)
@@ -21,45 +18,13 @@ export const createPostOrPosts = async (req, res, next) => {
 
 export const getPosts = async (req, res, next) => {
   try {
-    const db = await connectDB()
-    const posts = db.collection('posts')
-
     const page = parseInt(req.query.page) || 1
-    const pageSize = parseInt(req.query.limit) || 5
+    const pageSize = parseInt(req.query.limit) || 50
     const skip = (page - 1) * pageSize
 
-    const pipeline = [
-      {
-        $addFields: {
-          contentLength: { $strLenCP: '$content' }
-        }
-      },
-      {
-        $sort: { contentLength: -1 }
-      },
-      {
-        $skip: skip
-      },
-      {
-        $limit: pageSize
-      },
-      {
-        $project: {
-          title: 1,
-          content: 1
-        }
-      }
-    ]
+    const posts = await Post.find({}).sort({ content: -1 }).skip(skip).limit(pageSize).select('title content')
 
-    const cursor = posts.aggregate(pipeline)
-    const postsList = await cursor.toArray()
-
-    res.status(200).render('posts/posts', {
-      posts: postsList,
-      theme: res.locals.theme,
-      page: page,
-      pageSize: pageSize
-    })
+    res.status(200).json({ posts, page, pageSize })
   } catch (error) {
     next(error)
   }
@@ -67,10 +32,7 @@ export const getPosts = async (req, res, next) => {
 
 export const getPostStats = async (req, res, next) => {
   try {
-    const db = await connectDB()
-    const posts = db.collection('posts')
-
-    const pipeline = [
+    const stats = await Post.aggregate([
       {
         $group: {
           _id: null,
@@ -78,18 +40,13 @@ export const getPostStats = async (req, res, next) => {
           count: { $sum: 1 }
         }
       }
-    ]
+    ])
 
-    const cursor = posts.aggregate(pipeline)
-    const result = await cursor.toArray()
-
-    const stats = result[0]
-
-    res.status(200).render('posts/stats', {
-      avgContentLength: stats.avgContentLength,
-      count: stats.count,
-      theme: res.locals.theme
-    })
+    if (stats.length > 0) {
+      res.status(200).json({ avgContentLength: stats[0].avgContentLength, count: stats[0].count })
+    } else {
+      res.status(200).json({ avgContentLength: 0, count: 0 })
+    }
   } catch (error) {
     next(error)
   }
@@ -97,19 +54,13 @@ export const getPostStats = async (req, res, next) => {
 
 export const getPost = async (req, res, next) => {
   try {
-    const db = await connectDB()
-    const posts = db.collection('posts')
-
-    const post = await posts.findOne(
-      { _id: new ObjectId(req.params.id) },
-      { projection: { title: 1, content: 1 } }
-    )
+    const post = await Post.findById(req.params.id).select('title content')
 
     if (!post) {
-      return res.status(404).send('Post not found')
+      return res.status(404).json({ message: 'Post not found' })
     }
 
-    res.status(200).render('posts/post', { post, theme: res.locals.theme })
+    res.status(200).json(post)
   } catch (error) {
     next(error)
   }
@@ -117,21 +68,19 @@ export const getPost = async (req, res, next) => {
 
 export const deletePostOrPosts = async (req, res, next) => {
   try {
-    const db = await connectDB()
-    const posts = db.collection('posts')
     if (Array.isArray(req.body)) {
-      const ids = req.body.map((id) => new ObjectId(id))
-      const result = await posts.deleteMany({ _id: { $in: ids } })
+      const ids = req.body.map((id) => id)
+      const result = await Post.deleteMany({ _id: { $in: ids } })
       if (result.deletedCount === 0) {
-        return res.status(404).send('No posts found to delete')
+        return res.status(404).json({ message: 'No posts found to delete' })
       }
-      res.status(200).send(`Deleted ${result.deletedCount} posts`)
+      res.status(200).json({ message: `Deleted ${result.deletedCount} posts` })
     } else {
-      const result = await posts.deleteOne({ _id: new ObjectId(req.params.id) })
-      if (result.deletedCount === 0) {
-        return res.status(404).send('Post not found')
+      const result = await Post.findByIdAndDelete(req.params.id)
+      if (!result) {
+        return res.status(404).json({ message: 'Post not found' })
       }
-      res.status(200).send(`Post with id ${req.params.id} deleted`)
+      res.status(200).json({ message: `Post with id ${req.params.id} deleted` })
     }
   } catch (error) {
     next(error)
@@ -140,27 +89,24 @@ export const deletePostOrPosts = async (req, res, next) => {
 
 export const updatePostOrPosts = async (req, res, next) => {
   try {
-    const db = await connectDB()
-    const posts = db.collection('posts')
-
     if (Array.isArray(req.body)) {
       const operations = req.body.map((post) => ({
         updateOne: {
-          filter: { _id: new ObjectId(post._id) },
-          update: { $set: { title: post.title, content: post.content } }
+          filter: { _id: post._id },
+          update: { title: post.title, content: post.content }
         }
       }))
-      const result = await posts.bulkWrite(operations)
+      const result = await Post.bulkWrite(operations)
       if (result.matchedCount === 0) {
-        return res.status(404).send('No posts found to update')
+        return res.status(404).json({ message: 'No posts found to update' })
       }
-      res.status(200).send(`Updated ${result.modifiedCount} posts`)
+      res.status(200).json({ message: `Updated ${result.modifiedCount} posts` })
     } else {
-      const result = await posts.updateOne({ _id: new ObjectId(req.params.id) }, { $set: req.body })
-      if (result.matchedCount === 0) {
-        return res.status(404).send('Post not found')
+      const result = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true })
+      if (!result) {
+        return res.status(404).json({ message: 'Post not found' })
       }
-      res.status(200).send(`Post with id ${req.params.id} updated`)
+      res.status(200).json({ message: `Post with id ${req.params.id} updated` })
     }
   } catch (error) {
     next(error)
@@ -169,14 +115,11 @@ export const updatePostOrPosts = async (req, res, next) => {
 
 export const replacePost = async (req, res, next) => {
   try {
-    const db = await connectDB()
-    const posts = db.collection('posts')
-
-    const result = await posts.replaceOne({ _id: new ObjectId(req.params.id) }, req.body)
-    if (result.matchedCount === 0) {
-      return res.status(404).send('Post not found')
+    const result = await Post.findOneAndReplace({ _id: req.params.id }, req.body, { new: true })
+    if (!result) {
+      return res.status(404).json({ message: 'Post not found' })
     }
-    res.status(200).send(`Post with id ${req.params.id} replaced`)
+    res.status(200).json({ message: `Post with id ${req.params.id} replaced` })
   } catch (error) {
     next(error)
   }

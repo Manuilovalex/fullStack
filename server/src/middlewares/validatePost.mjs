@@ -1,6 +1,10 @@
+import { Post } from "../models/post.mjs"
+
 export const validatePostData = (req, res, next) => {
   const validate = (post) => {
-    return post.title && post.content
+    const postInstance = new Post(post)
+    const error = postInstance.validateSync()
+    return !error
   }
 
   if (Array.isArray(req.body)) {

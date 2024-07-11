@@ -1,53 +1,58 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
 import { TodoProviderPropsInterface } from '../../types/todo/TodoProviderProps.interface.ts'
 import { TodoInterface } from '../../types/todo/Todo.interface.ts'
 import { TodoContext } from '../../context/TodoContext.ts'
-import { MOCK_TODOS } from '../../data/mockData.ts'
 
 const TodoProvider = ({ children }: TodoProviderPropsInterface) => {
-  const [todos, setTodos] = useState<TodoInterface[]>(() => {
-    const savedTodos = localStorage.getItem('todos')
-    return savedTodos ? JSON.parse(savedTodos) : MOCK_TODOS
-  })
-
-  const [nextId, setNextId] = useState<number>(() => {
-    const savedTodos = localStorage.getItem('todos')
-    const todos: TodoInterface[] = savedTodos ? JSON.parse(savedTodos) : MOCK_TODOS
-    return todos.length ? Math.max(...todos.map((todo) => todo.id)) + 1 : 1
-  })
+  const [todos, setTodos] = useState<TodoInterface[]>([])
 
   useEffect(() => {
-    localStorage.setItem('todos', JSON.stringify(todos))
-  }, [todos])
+    axios
+      .get('http://localhost:3000/todos')
+      .then((response) => setTodos(response.data.todos))
+      .catch((error) => console.error('Error fetching todos:', error))
+  }, [])
 
   const addTodo = (todo: Omit<TodoInterface, 'id'>) => {
-    const newTodo = { ...todo, id: nextId }
-    setTodos((prevTodos) => [...prevTodos, newTodo])
-    setNextId((prevNextId) => prevNextId + 1)
+    axios
+      .post('http://localhost:3000/todos', todo)
+      .then((response) => setTodos((prevTodos) => [...prevTodos, response.data.todo]))
+      .catch((error) => console.error('Error adding todo:', error))
   }
 
-  const deleteTodo = (id: number) => {
-    const updatedTodos = todos.filter((todo) => todo.id !== id).map((todo, index) => ({ ...todo, id: index + 1 }))
-    setTodos(updatedTodos)
-    setNextId(todos.length + 1)
+  const deleteTodo = (_id: number) => {
+    console.log(_id)
+    axios
+      .delete(`http://localhost:3000/todos/${_id}`)
+      .then(() => setTodos((prevTodos) => prevTodos.filter((todo) => todo._id !== _id)))
+      .catch((error) => console.error('Error deleting todo:', error))
   }
 
-  const toggleTodo = (id: number) => {
-    setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)))
+  const toggleTodo = (_id: number) => {
+    const todo = todos.find((todo) => todo._id === _id)
+    if (!todo) return
+    axios
+      .put(`http://localhost:3000/todos/${_id}`, { ...todo, completed: !todo.completed })
+      .then((response) => setTodos((prevTodos) => prevTodos.map((t) => (t._id === _id ? response.data.todo : t))))
+      .catch((error) => console.error('Error toggling todo:', error))
   }
 
   const deleteAllTodos = () => {
-    setTodos([])
-    setNextId(1)
+    Promise.all(todos.map((todo) => axios.delete(`http://localhost:3000/todos/${todo._id}`)))
+      .then(() => setTodos([]))
+      .catch((error) => console.error('Error deleting all todos:', error))
   }
 
   const clearCompletedTodos = () => {
-    const activeTodos = todos.filter((todo) => !todo.completed).map((todo, index) => ({ ...todo, id: index + 1 }))
-    setTodos(activeTodos)
-    setNextId(activeTodos.length + 1)
+    Promise.all(
+      todos.filter((todo) => todo.completed).map((todo) => axios.delete(`http://localhost:3000/todos/${todo._id}`))
+    )
+      .then(() => setTodos((prevTodos) => prevTodos.filter((todo) => !todo.completed)))
+      .catch((error) => console.error('Error clearing completed todos:', error))
   }
 
-  const completedTodosCount: number = todos.filter((todo) => todo.completed).length
+  const completedTodosCount = todos.filter((todo) => todo.completed).length
 
   return (
     <TodoContext.Provider

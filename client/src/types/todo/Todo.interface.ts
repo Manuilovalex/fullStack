@@ -1,6 +1,6 @@
 export interface TodoInterface {
   userId: number
-  id: number
+  _id: number
   title: string
   completed: boolean
 }

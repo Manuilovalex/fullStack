@@ -10,7 +10,7 @@ const Form = () => {
     e.preventDefault()
     addTodo({
       userId: 1,
-      id: 1,
+      _id: 1,
       title,
       completed: false
     })

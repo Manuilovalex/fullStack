@@ -9,7 +9,7 @@ const Todos = () => {
     <div className="todos">
       {!todos.length && <p className="todos__empty">Todos list is empty</p>}
       {todos.map((todo) => (
-        <Todo key={todo.id} todo={todo} />
+        <Todo key={todo._id} todo={todo} />
       ))}
       {completedTodosCount > 0 && (
         <p className="todos__message">

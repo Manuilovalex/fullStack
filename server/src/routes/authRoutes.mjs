@@ -19,17 +19,15 @@ authRouter.post('/register', async (req, res, next) => {
     const { username, email, password } = req.body
     const existingUser = await findUserByEmail(email)
     if (existingUser) {
-      req.flash('error', 'Email already registered.')
-      return res.redirect('/register')
+      return res.status(400).json({ message: 'Email already registered.' })
     }
     const user = await createUser({ username, email, password })
     req.login(user, (err) => {
       if (err) return next(err)
-      return res.redirect('/login')
+      return res.status(200).json({ message: 'Registration successful.' })
     })
   } catch (error) {
-    req.flash('error', 'Registration failed.')
-    res.redirect('/register')
+    res.status(500).json({ message: 'Registration failed.' })
   }
 })
 
@@ -37,12 +35,11 @@ authRouter.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err)
     if (!user) {
-      req.flash('error', 'Incorrect email or password, please try again.')
-      return res.redirect('/login')
+      return res.status(400).json({ message: 'Incorrect email or password.' })
     }
     req.logIn(user, (err) => {
       if (err) return next(err)
-      res.redirect('/')
+      res.status(200).json({ message: 'Login successful.' })
     })
   })(req, res, next)
 })

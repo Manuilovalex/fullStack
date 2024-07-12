@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 import { registerUserSuccess } from '../../redux/slices/authSlice'
+import axiosInstance from '../../utils/axiosInstance'
 
 interface RegistrationFormProps {
   onClose: () => void
@@ -9,11 +10,12 @@ interface RegistrationFormProps {
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ onClose }) => {
   const dispatch = useDispatch<AppDispatch>()
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [passwordMatchError, setPasswordMatchError] = useState(false)
+  const [username, setUsername] = useState<string>('')
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [confirmPassword, setConfirmPassword] = useState<string>('')
+  const [passwordMatchError, setPasswordMatchError] = useState<boolean>(false)
+  const [error, setError] = useState<string>('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,9 +25,15 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onClose }) => {
       return
     }
 
-    dispatch(registerUserSuccess())
-
-    onClose()
+    try {
+      const response = await axiosInstance.post('/register', { username, email, password })
+      if (response.status === 200) {
+        dispatch(registerUserSuccess())
+        onClose()
+      }
+    } catch (error: any) {
+      setError('Registration failed: ' + (error.response?.data?.message || 'Unknown error'))
+    }
   }
 
   return (
@@ -71,6 +79,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onClose }) => {
         required
       />
       {passwordMatchError && <p className="error-message">Passwords do not match!</p>}
+      {error && <p className="error-message">{error}</p>}
       <button type="submit">Register</button>
     </form>
   )

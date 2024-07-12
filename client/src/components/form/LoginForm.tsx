@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 import { login } from '../../redux/slices/authSlice'
+import axiosInstance from '../../utils/axiosInstance'
 
 interface LoginFormProps {
   onClose: () => void
@@ -9,13 +10,21 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
   const dispatch = useDispatch<AppDispatch>()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [error, setError] = useState<string>('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    dispatch(login())
-    onClose()
+    try {
+      const response = await axiosInstance.post('/login', { email, password })
+      if (response.status === 200) {
+        dispatch(login())
+        onClose()
+      }
+    } catch (error: any) {
+      setError('Login failed: Incorrect email or password.')
+    }
   }
 
   return (
@@ -39,6 +48,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
         placeholder="Enter your password..."
         required
       />
+      {error && <p className="error-message">{error}</p>}
       <button type="submit">Login</button>
     </form>
   )

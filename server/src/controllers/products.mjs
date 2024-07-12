@@ -23,7 +23,7 @@ export const createProduct = async (req, res, next) => {
 export const getProducts = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1
-    const pageSize = parseInt(req.query.limit) || 9 // Изменено значение по умолчанию на 9
+    const pageSize = parseInt(req.query.limit) || 12
     const skip = (page - 1) * pageSize
     const name = req.query.name || ''
     const sortField = req.query.sort || 'name'

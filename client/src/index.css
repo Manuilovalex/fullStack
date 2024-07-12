@@ -860,7 +860,8 @@ body {
 }
 
 /* Registaration */
-.registration-form button {
+.registration-form button,
+.login-form button {
   width: 100%;
   padding: 10px;
   font-size: 16px;
@@ -877,7 +878,47 @@ body {
   background-color: #e4e1e1;
 }
 
+/* registr-link  */
+.registr-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.registr-link h4 {
+  font-size: 18px;
+}
+
+.registr-link .registr {
+  background-color: #007bff;
+  color: #fff;
+  width: 120px;
+  border: none;
+  border-radius: 7px;
+  padding: 10px 20px;
+  margin: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.registr-link .registr:hover {
+  background-color: #0056b3;
+}
+
 /* Mobile Style*/
+@media (max-width: 565px) {
+  .registr-link {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .registr-link .registr {
+    margin-top: 10px;
+  }
+}
+
 @media (max-width: 800px) {
   .menu-toggle {
     display: block;

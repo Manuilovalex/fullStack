@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../redux/store.ts'
 import { logout } from '../redux/slices/authSlice.ts'
 import Modal from '../modal/Modal'
-import RegistrationForm from './form/RegistrationForm.tsx'
+import SigninForm from './form/SigninForm.tsx'
 
 const Navbar = () => {
   const dispatch = useDispatch()
@@ -55,7 +55,7 @@ const Navbar = () => {
         {!isLogin ? (
           <li className="navbar__item">
             <button className="navbar__link navbar__link--login" onClick={handleLogin}>
-              Login
+              SIGN IN
             </button>
           </li>
         ) : (
@@ -69,7 +69,7 @@ const Navbar = () => {
 
       {modalOpen && (
         <Modal onClose={() => setModalOpen(false)}>
-          <RegistrationForm onClose={() => setModalOpen(false)} />
+          <SigninForm onClose={() => setModalOpen(false)} />
         </Modal>
       )}
     </nav>

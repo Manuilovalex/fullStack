@@ -1,12 +1,13 @@
 export const API_URL = 'http://localhost:3000/products' // Обновите на ваш локальный сервер
-export const API_ITEMS_PER_PAGE_LIMIT = 12
 
-export function createUrl(page: number | string, name: string, sort: string, order: string): string {
-  const urlObject = new URL(API_URL)
-  urlObject.searchParams.set('page', `${page}`)
-  urlObject.searchParams.set('limit', `${API_ITEMS_PER_PAGE_LIMIT}`)
-  name && urlObject.searchParams.set('name', `${name}`)
-  sort && urlObject.searchParams.set('sortBy', `${sort}`)
-  order && urlObject.searchParams.set('order', `${order}`)
-  return urlObject.toString()
-}
+const PRODUCTS_PER_PAGE = 12
+
+ export const createUrl = (page: number, name: string, sort: string, order: string) => {
+    const url = new URL(API_URL)
+    url.searchParams.append('page', page.toString())
+    url.searchParams.append('limit', PRODUCTS_PER_PAGE.toString())
+    if (name) url.searchParams.append('name', name)
+    if (sort) url.searchParams.append('sort', sort)
+    if (order) url.searchParams.append('order', order)
+    return url.toString()
+  }

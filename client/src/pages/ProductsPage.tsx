@@ -7,6 +7,7 @@ import { MdRefresh } from 'react-icons/md'
 import InputField from '../components/form/InputField'
 import SelectField from '../components/form/SelectField'
 import { useDispatch, useSelector } from 'react-redux'
+import { createUrl } from '../utils/mockapi'
 import { AppDispatch } from '../redux/store'
 import {
   fetchAllProducts,
@@ -15,9 +16,6 @@ import {
   selectProductsLoading
 } from '../redux/slices/productsSlice'
 import { ORDER_BY_LIST, SORT_BY_LIST } from '../data/mockData'
-
-const API_URL = 'http://localhost:3000'
-const PRODUCTS_PER_PAGE = 9
 
 const Products = () => {
   const [page, setPage] = useState(1)
@@ -57,16 +55,6 @@ const Products = () => {
     setSort('')
     setOrder('asc')
     setInputValue('')
-  }
-
-  const createUrl = (page: number, name: string, sort: string, order: string) => {
-    const url = new URL(`${API_URL}/products`)
-    url.searchParams.append('page', page.toString())
-    url.searchParams.append('limit', PRODUCTS_PER_PAGE.toString())
-    if (name) url.searchParams.append('name', name)
-    if (sort) url.searchParams.append('sort', sort)
-    if (order) url.searchParams.append('order', order)
-    return url.toString()
   }
 
   return (

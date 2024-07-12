@@ -1,14 +1,13 @@
 import { useState } from 'react'
-import Modal from '../modal/Modal.tsx'
-import ProductForm from './form/ProductForm.tsx'
-import { ProductInterface } from '../types/Product.interface.ts'
-import { useAdd } from '../hooks/useAdd.ts'
-import { API_URL } from '../utils/mockapi.ts'
-import { INITIAL_PRODUCT } from '../data/mockData.ts'
+import Modal from '../modal/Modal'
+import ProductForm from './form/ProductForm'
+import { ProductInterface } from '../types/Product.interface'
+import useAdd from '../hooks/useAdd'
+import { API_URL } from '../utils/mockapi'
+import { INITIAL_PRODUCT } from '../data/mockData'
 
 const AddProduct = () => {
   const [showModal, setShowModal] = useState(false)
-
   const { add: addProduct, error } = useAdd(API_URL)
 
   const handleOpen = () => setShowModal(true)
@@ -20,7 +19,7 @@ const AddProduct = () => {
       console.log(newProduct)
       handleClose()
     } catch (error) {
-      console.error(error)
+      console.error('Failed to add product:', error)
     }
   }
 

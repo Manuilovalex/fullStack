@@ -20,8 +20,8 @@ const ProductForm = ({ onSubmit, product }: ProductFormPropsInterface) => {
     e.preventDefault()
     const returnedProduct: Partial<ProductInterface> = { name, description, price, image, category }
 
-    if (product.id) {
-      returnedProduct.id = product.id
+    if (product._id) {
+      returnedProduct._id = product._id
     }
 
     onSubmit(returnedProduct)

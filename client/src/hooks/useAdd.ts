@@ -1,18 +1,31 @@
-import { useState } from 'react'
-import { ProductInterface } from '../types/Product.interface.ts'
 import axios from 'axios'
+import { ProductInterface } from '../types/Product.interface'
+import { useState } from 'react'
 
-export const useAdd = (url: string) => {
+const useAdd = (baseURL: string) => {
   const [error, setError] = useState<string | null>(null)
 
-  const add = async (data: Partial<ProductInterface>) => {
+  const add = async (product: Partial<ProductInterface>) => {
     try {
-      const response = await axios.post(url, data)
+      const response = await axios.post(baseURL, product, {
+        withCredentials: true // если требуется аутентификация
+      })
       return response.data
-    } catch (error) {
-      setError(`Error: The addition failed with the status code ${(error as Error).message}`)
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        // Ошибка от Axios
+        setError(error.response?.data?.message || error.message)
+        console.error('Failed to add product:', error.response?.data || error.message)
+      } else {
+        // Другая ошибка
+        setError((error as Error).message)
+        console.error('An unexpected error occurred:', (error as Error).message)
+      }
+      throw error
     }
   }
 
   return { add, error }
 }
+
+export default useAdd

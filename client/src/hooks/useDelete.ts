@@ -1,17 +1,18 @@
-import axios from 'axios'
-import { useState } from 'react'
+import axios from 'axios';
+import { useState } from 'react';
 
 export const useDelete = (url: string) => {
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null);
 
   const del = async (id: string) => {
     try {
-      const response = await axios.delete(`${url}/${id}`)
-      return response.data
+      console.log('Deleting product with id:', id); // Добавляем отладочный вывод
+      const response = await axios.delete(`${url}/${id}`);
+      return response.data;
     } catch (error) {
-      setError(`Error: Deletion failed with status code ${(error as Error).message}`)
+      setError(`Error: Deletion failed with status code ${(error as Error).message}`);
     }
-  }
+  };
 
-  return { del, error }
-}
+  return { del, error };
+};

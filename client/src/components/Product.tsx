@@ -11,7 +11,7 @@ interface ProductPropsInterface {
   reload: () => void
 }
 
-const Product = ({ product: { id, name, description, category, price, image }, reload }: ProductPropsInterface) => {
+const Product = ({ product: { _id, name, description, category, price, image }, reload }: ProductPropsInterface) => {
   const { del: deleteProduct } = useDelete(API_URL)
 
   const defaultImage = 'https://via.placeholder.com/640x480'
@@ -20,7 +20,7 @@ const Product = ({ product: { id, name, description, category, price, image }, r
 
   const handleDeleteProduct = async () => {
     try {
-      await deleteProduct(id)
+      await deleteProduct(_id)
       reload()
     } catch (error) {
       console.error((error as AxiosError).message)
@@ -28,7 +28,7 @@ const Product = ({ product: { id, name, description, category, price, image }, r
   }
 
   return (
-    <li key={id} className="product-item">
+    <li key={_id} className="product-item">
       <h2 className="product-item__title">{name}</h2>
       <p className="product-item__description">{description}</p>
       <p className="product-item__category">{category}</p>
@@ -38,7 +38,7 @@ const Product = ({ product: { id, name, description, category, price, image }, r
         <button className="product-item__delete" onClick={handleDeleteProduct}>
           <FaTrash />
         </button>
-        <EditProduct product={{ id, name, description, category, price, image }} reload={reload}>
+        <EditProduct product={{ _id, name, description, category, price, image }} reload={reload}>
           <FaEdit />
         </EditProduct>
       </div>

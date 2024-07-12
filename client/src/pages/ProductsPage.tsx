@@ -1,7 +1,6 @@
 import { useState, useEffect, ChangeEvent, useRef } from 'react'
 import { debounce } from '../utils/debounce'
 import { ProductInterface } from '../types/Product.interface'
-import { API_ITEMS_PER_PAGE_LIMIT, createUrl } from '../utils/mockapi'
 import Product from '../components/Product'
 import AddProduct from '../components/AddProduct'
 import { MdRefresh } from 'react-icons/md'
@@ -17,6 +16,9 @@ import {
 } from '../redux/slices/productsSlice'
 import { ORDER_BY_LIST, SORT_BY_LIST } from '../data/mockData'
 
+const API_URL = 'http://localhost:3000'
+const PRODUCTS_PER_PAGE = 9
+
 const Products = () => {
   const [page, setPage] = useState(1)
   const [name, setName] = useState('')
@@ -26,7 +28,7 @@ const Products = () => {
   const [inputValue, setInputValue] = useState('')
 
   const dispatch = useDispatch<AppDispatch>()
-  const products = useSelector(selectProducts)
+  const { products, totalPages } = useSelector(selectProducts)
   const isLoading = useSelector(selectProductsLoading)
   const error = useSelector(selectProductsError)
 
@@ -34,11 +36,13 @@ const Products = () => {
     dispatch(fetchAllProducts(createUrl(page, name, sort, order)))
   }, [dispatch, page, name, sort, order, reload])
 
+  useEffect(() => {
+    console.log('Products:', products)
+  }, [products])
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target
-
     setInputValue(value)
-
     debounceFilterProducts(value)
   }
 
@@ -53,6 +57,16 @@ const Products = () => {
     setSort('')
     setOrder('asc')
     setInputValue('')
+  }
+
+  const createUrl = (page: number, name: string, sort: string, order: string) => {
+    const url = new URL(`${API_URL}/products`)
+    url.searchParams.append('page', page.toString())
+    url.searchParams.append('limit', PRODUCTS_PER_PAGE.toString())
+    if (name) url.searchParams.append('name', name)
+    if (sort) url.searchParams.append('sort', sort)
+    if (order) url.searchParams.append('order', order)
+    return url.toString()
   }
 
   return (
@@ -80,7 +94,7 @@ const Products = () => {
       {isLoading && <p className="loading">Loading...</p>}
       {error && <h2 className="error">{error}</h2>}
 
-      {!isLoading && !error && (
+      {!isLoading && !error && Array.isArray(products) && (
         <div className="content">
           <div className="buttons-group">
             <AddProduct />
@@ -94,7 +108,7 @@ const Products = () => {
               </button>
               <button
                 className="pagination__btn"
-                disabled={products.length < API_ITEMS_PER_PAGE_LIMIT}
+                disabled={page === totalPages} // Использование totalPages
                 onClick={() => setPage((prevState) => prevState + 1)}
               >
                 Next
@@ -104,7 +118,7 @@ const Products = () => {
 
           <ul className="products-list">
             {products.map((product: ProductInterface) => (
-              <Product key={product.id} product={product} reload={() => setReload(product.id)} />
+              <Product key={product._id} product={product} reload={() => setReload(product._id)} />
             ))}
           </ul>
 
@@ -118,7 +132,7 @@ const Products = () => {
             </button>
             <button
               className="pagination-arrow"
-              disabled={products.length < API_ITEMS_PER_PAGE_LIMIT}
+              disabled={page === totalPages} // Использование totalPages
               onClick={() => setPage((prevState) => prevState + 1)}
             >
               Next

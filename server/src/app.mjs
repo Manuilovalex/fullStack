@@ -16,6 +16,7 @@ import { ensureAuthenticated } from './middlewares/authMiddleware.mjs'
 import usersRouter from './routes/users.mjs'
 import postsRouter from './routes/posts.mjs'
 import todosRouter from './routes/todos.mjs'
+import productsRouter from './routes/products.mjs'
 import { connectDB } from './config/mongoConfig.mjs'
 import dotenv from 'dotenv'
 
@@ -93,6 +94,8 @@ app.use((req, res, next) => {
 app.use('/users', ensureAuthenticated, usersRouter)
 app.use('/posts', ensureAuthenticated, postsRouter)
 app.use('/todos', todosRouter)
+app.use('/products', productsRouter)
+
 
 app.get('/', (req, res) => {
   console.log('User:', req.user)

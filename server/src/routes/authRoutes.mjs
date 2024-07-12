@@ -1,18 +1,9 @@
 import { Router } from 'express'
-import { passport } from '../config/passport-config.mjs'
-import { createUser } from '../services/userService.mjs'
+import passport from 'passport'
+import { createUser, findUserByEmail, findUserByEmailAndPassword } from '../services/userService.mjs'
 import { forwardAuthenticated } from '../middlewares/authMiddleware.mjs'
-import { findUserByEmail } from '../services/userService.mjs'
 
 const authRouter = Router()
-
-authRouter.get('/login', forwardAuthenticated, (req, res) => {
-  res.render('login', { error: req.flash('error') })
-})
-
-authRouter.get('/register', forwardAuthenticated, (req, res) => {
-  res.render('register', { error: req.flash('error') })
-})
 
 authRouter.post('/register', async (req, res, next) => {
   try {
@@ -21,6 +12,7 @@ authRouter.post('/register', async (req, res, next) => {
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered.' })
     }
+
     const user = await createUser({ username, email, password })
     req.login(user, (err) => {
       if (err) return next(err)
@@ -31,26 +23,21 @@ authRouter.post('/register', async (req, res, next) => {
   }
 })
 
-authRouter.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if (err) return next(err)
+authRouter.post('/login', async (req, res, next) => {
+  try {
+    const { email, password } = req.body
+    const user = await findUserByEmailAndPassword(email, password)
     if (!user) {
-      return res.status(400).json({ message: 'Incorrect email or password.' })
+      return res.status(400).json({ message: 'Invalid credentials.' })
     }
-    req.logIn(user, (err) => {
-      if (err) return next(err)
-      res.status(200).json({ message: 'Login successful.' })
-    })
-  })(req, res, next)
-})
 
-authRouter.get('/logout', (req, res, next) => {
-  req.logout((err) => {
-    if (err) {
-      return next(err)
-    }
-    res.redirect('/')
-  })
+    req.login(user, (err) => {
+      if (err) return next(err)
+      return res.status(200).json({ message: 'Login successful.' })
+    })
+  } catch (error) {
+    res.status(500).json({ message: 'Login failed.' })
+  }
 })
 
 export default authRouter

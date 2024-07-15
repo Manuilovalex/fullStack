@@ -23,6 +23,7 @@ const PostForm = ({ onSubmit, postToEdit }: PostFormProps) => {
     onSubmit(newPostData)
     setTitle('')
     setContent('')
+    window.location.reload() // Полная перезагрузка страницы
   }
 
   return (

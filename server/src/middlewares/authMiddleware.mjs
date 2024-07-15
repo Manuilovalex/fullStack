@@ -1,13 +1,6 @@
-export function ensureAuthenticated(req, res, next) {
-  if (!req.isAuthenticated() || req.isAuthenticated()) {
+export const ensureAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
     return next()
   }
-  res.redirect('/login')
-}
-
-export function forwardAuthenticated(req, res, next) {
-  if (!req.isAuthenticated()) {
-    return next()
-  }
-  res.redirect('/')
+  res.status(401).json({ message: 'Unauthorized' })
 }

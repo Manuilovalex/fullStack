@@ -4,12 +4,10 @@ export const createProduct = async (req, res, next) => {
   try {
     let products = req.body
 
-    // Если пришел не массив, обернем его в массив
     if (!Array.isArray(products)) {
       products = [products]
     }
 
-    // Сохранение каждого продукта
     const result = await Product.insertMany(products)
 
     res.status(201).json({ message: 'Products created', ids: result.map((product) => product._id.toString()) })
@@ -17,8 +15,6 @@ export const createProduct = async (req, res, next) => {
     next(error)
   }
 }
-
-
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -29,10 +25,8 @@ export const getProducts = async (req, res, next) => {
     const sortField = req.query.sort || 'name'
     const sortOrder = req.query.order === 'desc' ? -1 : 1
 
-    // Поиск по имени
     const query = name ? { name: { $regex: name, $options: 'i' } } : {}
 
-    // Сортировка
     const sortOptions = {}
     sortOptions[sortField] = sortOrder
 

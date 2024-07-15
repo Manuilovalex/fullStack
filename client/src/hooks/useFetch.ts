@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import axios, { CancelTokenSource } from 'axios'
 
 export const useFetch = <T>(url: string, limit?: number, reload?: string) => {
-  const [data, setPosts] = useState<T[]>([])
+  const [data, setData] = useState<T[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -10,13 +10,15 @@ export const useFetch = <T>(url: string, limit?: number, reload?: string) => {
     console.log(url)
 
     const fetchPosts = async () => {
+      const cancelTokenSource: CancelTokenSource = axios.CancelToken.source() // Инициализация cancelTokenSource
+
       try {
-        const cancelTokenSource = axios.CancelToken.source()
         setIsLoading(true)
         setError(null)
 
         const response = await axios.get<T[]>(limit ? `${url}?_limit=${limit}` : url, {
-          cancelToken: cancelTokenSource.token
+          cancelToken: cancelTokenSource.token,
+          withCredentials: true // Включает передачу куки
         })
 
         if (response.status !== 200) {
@@ -25,7 +27,7 @@ export const useFetch = <T>(url: string, limit?: number, reload?: string) => {
 
         console.log('Response:', response.data)
 
-        setPosts(response.data)
+        setData(response.data)
       } catch (error) {
         if (axios.isCancel(error)) {
           console.log('Request canceled:', (error as Error).message)
@@ -35,7 +37,12 @@ export const useFetch = <T>(url: string, limit?: number, reload?: string) => {
       } finally {
         setIsLoading(false)
       }
+
+      return () => {
+        cancelTokenSource.cancel('Operation canceled by the user.') // Отмена запроса при размонтировании
+      }
     }
+
     fetchPosts()
   }, [url, limit, reload])
 

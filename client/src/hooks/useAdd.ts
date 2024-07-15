@@ -8,16 +8,14 @@ const useAdd = (baseURL: string) => {
   const add = async (product: Partial<ProductInterface>) => {
     try {
       const response = await axios.post(baseURL, product, {
-        withCredentials: true // если требуется аутентификация
+        withCredentials: true
       })
       return response.data
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        // Ошибка от Axios
         setError(error.response?.data?.message || error.message)
         console.error('Failed to add product:', error.response?.data || error.message)
       } else {
-        // Другая ошибка
         setError((error as Error).message)
         console.error('An unexpected error occurred:', (error as Error).message)
       }

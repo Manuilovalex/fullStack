@@ -1,6 +1,17 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
+import axios from 'axios'
 import { UserInterface } from '../../types/User.interface'
 import { AppDispatch, RootState } from '../store'
+
+const axiosInstance = axios.create({
+  baseURL: 'http://localhost:3000', 
+  withCredentials: true
+})
+
+export const fetchAllUsers = createAsyncThunk('users/fetchAll', async () => {
+  const response = await axiosInstance.get('/users')
+  return response.data.users
+})
 
 interface UsersState {
   users: UserInterface[]
@@ -13,15 +24,6 @@ const initialState: UsersState = {
   isLoading: false,
   error: null
 }
-
-export const fetchAllUsers = createAsyncThunk('users/fetchAll', async () => {
-  const response = await fetch('http://localhost:3000/users')
-  if (!response.ok) {
-    throw new Error('Failed to fetch users')
-  }
-  const data = await response.json()
-  return data.users
-})
 
 const usersSlice = createSlice({
   name: 'users',
@@ -47,7 +49,7 @@ const usersSlice = createSlice({
         state.isLoading = true
         state.error = null
       })
-      .addCase(fetchAllUsers.fulfilled, (state, action: PayloadAction<UserInterface[]>) => {
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
         state.users = action.payload
         state.isLoading = false
       })
@@ -62,15 +64,8 @@ export const { addUserSuccess, deleteUserSuccess, updateUserSuccess } = usersSli
 
 export const addUser = (newUserData: Partial<UserInterface>) => async (dispatch: AppDispatch) => {
   try {
-    const response = await fetch('http://localhost:3000/users', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newUserData)
-    })
-    const data = await response.json()
-    dispatch(addUserSuccess(data))
+    const response = await axiosInstance.post('/users', newUserData)
+    dispatch(addUserSuccess(response.data))
     dispatch(fetchAllUsers())
   } catch (error) {
     console.error('Failed to add user', error)
@@ -79,9 +74,7 @@ export const addUser = (newUserData: Partial<UserInterface>) => async (dispatch:
 
 export const deleteUser = (userId: number) => async (dispatch: AppDispatch) => {
   try {
-    await fetch(`http://localhost:3000/users/${userId}`, {
-      method: 'DELETE'
-    })
+    await axiosInstance.delete(`/users/${userId}`)
     dispatch(deleteUserSuccess(userId))
     dispatch(fetchAllUsers())
   } catch (error) {
@@ -92,15 +85,8 @@ export const deleteUser = (userId: number) => async (dispatch: AppDispatch) => {
 export const updateUser = (updatedUser: UserInterface) => async (dispatch: AppDispatch) => {
   try {
     const { _id, ...userData } = updatedUser
-    const response = await fetch(`http://localhost:3000/users/${updatedUser._id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(userData)
-    })
-    const data = await response.json()
-    dispatch(updateUserSuccess(data))
+    const response = await axiosInstance.put(`/users/${updatedUser._id}`, userData)
+    dispatch(updateUserSuccess(response.data))
     dispatch(fetchAllUsers())
   } catch (error) {
     console.error('Failed to update user', error)

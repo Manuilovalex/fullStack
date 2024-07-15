@@ -1,8 +1,8 @@
-import axios, { AxiosInstance } from 'axios'
+import axios from 'axios'
 
-const axiosInstance: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:3000', // Укажите базовый URL вашего сервера
-  withCredentials: true // Чтобы Axios отправлял куки
+const axiosInstance = axios.create({
+  baseURL: 'http://localhost:3000',
+  withCredentials: true // Включаем куки в запросы
 })
 
 export default axiosInstance

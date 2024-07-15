@@ -6,9 +6,7 @@ import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
 import flash from 'connect-flash'
-// import ejs from 'ejs'
-// import pug from 'pug'
-import { passport } from './config/passport-config.mjs'
+import passport from './config/passport-config.mjs'
 import authRouter from './routes/authRoutes.mjs'
 import { errorHandler } from './middlewares/errorHandler.mjs'
 import { logger } from './middlewares/logger.mjs'
@@ -19,6 +17,7 @@ import todosRouter from './routes/todos.mjs'
 import productsRouter from './routes/products.mjs'
 import { connectDB } from './config/mongoConfig.mjs'
 import dotenv from 'dotenv'
+import MongoStore from 'connect-mongo'
 
 dotenv.config()
 
@@ -28,6 +27,8 @@ const __dirname = dirname(__filename)
 const app = express()
 const PORT = process.env.PORT || 3000
 
+connectDB()
+
 app.use(
   cors({
     origin: 'http://localhost:5173',
@@ -35,29 +36,33 @@ app.use(
   })
 )
 
-connectDB()
-
 app.use(morgan('dev'))
 app.use(logger)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(express.static(join(__dirname, 'public')))
-// app.use(express.static(join(__dirname, '../../client/dist')))
-
-// app.set('views', join(__dirname, 'views'))
-// app.engine('ejs', ejs.renderFile)
-// app.engine('pug', pug.renderFile)
-// app.set('view engine', 'ejs')
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'key',
+    secret: process.env.SESSION_SECRET || 'default_secret_key',
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false, sameSite: 'none'  }
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      collectionName: 'sessions',
+      ttl: 24 * 60 * 60
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true,
+      secure: false
+    }
   })
 )
+
+app.use(passport.initialize())
+app.use(passport.session())
 
 app.use(flash())
 
@@ -67,16 +72,6 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use(passport.initialize())
-app.use(passport.session())
-
-// app.use((req, res, next) => {
-//   res.locals.theme = req.cookies.theme || 'light'
-//   res.locals.error = req.flash('error')
-//   res.locals.success = req.flash('success')
-//   res.locals.user = req.user || null
-//   next()
-// })
 
 app.use((req, res, next) => {
   console.log('Current session:', req.session)
@@ -84,11 +79,28 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use(authRouter)
+app.use((req, res, next) => {
+  console.log('Cookies from front:', req.cookies)
+  next()
+})
 
 app.use((req, res, next) => {
   res.locals.user = req.user || null
   next()
+})
+
+app.use(authRouter)
+
+app.post('/login', (req, res) => {
+  const token = 'someAuthToken'
+  res.cookie('token', token, { httpOnly: true, secure: true })
+  res.status(200).send({ message: 'Logged in successfully' })
+})
+
+app.post('/register', (req, res) => {
+  const token = 'someAuthToken'
+  res.cookie('token', token, { httpOnly: true, secure: true })
+  res.status(200).send({ message: 'Registered successfully' })
 })
 
 app.use('/users', ensureAuthenticated, usersRouter)
@@ -96,23 +108,16 @@ app.use('/posts', ensureAuthenticated, postsRouter)
 app.use('/todos', todosRouter)
 app.use('/products', productsRouter)
 
-
 app.get('/', (req, res) => {
   console.log('User:', req.user)
   console.log('Session:', req.session)
   res.render('index', { user: req.user })
 })
 
-// app.post('/theme', (req, res) => {
-//   const { theme } = req.body
-//   res.cookie('theme', theme, { maxAge: 900000, httpOnly: true })
-//   req.session.theme = theme
-//   res.redirect('back')
-// })
-
-// app.get('*', (req, res) => {
-//   res.sendFile(join(__dirname, '../../client/dist', 'index.html'))
-// })
+app.use((req, res, next) => {
+  console.log('MongoDB session store:', req.sessionStore)
+  next()
+})
 
 app.use((req, res, next) => {
   const error = new Error('Route not found')

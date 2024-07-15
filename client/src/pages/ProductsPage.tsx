@@ -7,7 +7,6 @@ import { MdRefresh } from 'react-icons/md'
 import InputField from '../components/form/InputField'
 import SelectField from '../components/form/SelectField'
 import { useDispatch, useSelector } from 'react-redux'
-import { createUrl } from '../utils/mockapi'
 import { AppDispatch } from '../redux/store'
 import {
   fetchAllProducts,
@@ -22,7 +21,7 @@ const Products = () => {
   const [name, setName] = useState('')
   const [sort, setSort] = useState('')
   const [order, setOrder] = useState('asc')
-  const [reload, setReload] = useState('0')
+  const [reload, setReload] = useState<string | undefined>(undefined) // Ensure that reload matches the expected type
   const [inputValue, setInputValue] = useState('')
 
   const dispatch = useDispatch<AppDispatch>()
@@ -31,8 +30,8 @@ const Products = () => {
   const error = useSelector(selectProductsError)
 
   useEffect(() => {
-    dispatch(fetchAllProducts(createUrl(page, name, sort, order)))
-  }, [dispatch, page, name, sort, order, reload])
+    dispatch(fetchAllProducts())
+  }, [dispatch, page, name, sort, order, reload]) // Explicitly specify the type of dependencies
 
   useEffect(() => {
     console.log('Products:', products)
@@ -57,9 +56,13 @@ const Products = () => {
     setInputValue('')
   }
 
+  const handleReload = (productId: string) => {
+    setReload(productId) // Ensure setReload is called with the correct argument
+  }
+
   return (
     <div>
-      <h1>Products list</h1>
+      <h1>Products List</h1>
 
       <div className="products-filter">
         <InputField
@@ -96,7 +99,7 @@ const Products = () => {
               </button>
               <button
                 className="pagination__btn"
-                disabled={page === totalPages} // Использование totalPages
+                disabled={page === totalPages}
                 onClick={() => setPage((prevState) => prevState + 1)}
               >
                 Next
@@ -106,7 +109,7 @@ const Products = () => {
 
           <ul className="products-list">
             {products.map((product: ProductInterface) => (
-              <Product key={product._id} product={product} reload={() => setReload(product._id)} />
+              <Product key={product._id} product={product} reload={() => handleReload(product._id)} />
             ))}
           </ul>
 
@@ -120,7 +123,7 @@ const Products = () => {
             </button>
             <button
               className="pagination-arrow"
-              disabled={page === totalPages} // Использование totalPages
+              disabled={page === totalPages}
               onClick={() => setPage((prevState) => prevState + 1)}
             >
               Next

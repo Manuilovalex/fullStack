@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 import { PostInterface } from '../../types/Post.interface'
 import { AppDispatch, RootState } from '../store'
+import axiosInstance from '../../utils/axiosInstance'
 
 interface PostsState {
   posts: PostInterface[]
@@ -15,12 +16,11 @@ const initialState: PostsState = {
 }
 
 export const fetchAllPosts = createAsyncThunk('posts/fetchAll', async () => {
-  const response = await fetch('http://localhost:3000/posts')
-  if (!response.ok) {
+  const response = await axiosInstance.get('/posts')
+  if (response.status !== 200) {
     throw new Error('Failed to fetch posts')
   }
-  const data = await response.json()
-  return data.posts // Убедитесь, что данные возвращаются в виде массива постов
+  return response.data.posts
 })
 
 const postsSlice = createSlice({
@@ -66,26 +66,21 @@ export const { addPostSuccess, deletePostSuccess, updatePostSuccess } = postsSli
 
 export const addPost = (newPostData: Partial<PostInterface>) => async (dispatch: AppDispatch) => {
   try {
-    const response = await fetch('http://localhost:3000/posts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newPostData)
-    })
-    const data = await response.json()
-    dispatch(addPostSuccess(data))
-    dispatch(fetchAllPosts()) // Обновляем список постов после добавления нового поста
+    const response = await axiosInstance.post('/posts', newPostData)
+    if (response.status !== 200) {
+      throw new Error('Failed to add post')
+    }
+    await dispatch(addPostSuccess(response.data)) // Диспатчим экшн для успешного добавления поста
+    await dispatch(fetchAllPosts()) // Диспатчим экшн для загрузки всех постов после добавления нового поста
   } catch (error) {
-    console.error('Failed to add post', error)
+    console.error('Failed to add post', error) // Обработка ошибки добавления поста
+    // Дополнительная обработка ошибок или уведомление пользователя
   }
 }
 
 export const deletePost = (postId: string) => async (dispatch: AppDispatch) => {
   try {
-    await fetch(`http://localhost:3000/posts/${postId}`, {
-      method: 'DELETE'
-    })
+    await axiosInstance.delete(`/posts/${postId}`)
     dispatch(deletePostSuccess(postId))
     dispatch(fetchAllPosts())
   } catch (error) {
@@ -95,18 +90,13 @@ export const deletePost = (postId: string) => async (dispatch: AppDispatch) => {
 
 export const updatePost = (updatedPost: PostInterface) => async (dispatch: AppDispatch) => {
   try {
-    const { _id, ...postData } = updatedPost 
+    const { _id, ...postData } = updatedPost
 
-    const response = await fetch(`http://localhost:3000/posts/${updatedPost._id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(postData)
-    })
-
-    const data = await response.json()
-    dispatch(updatePostSuccess(data))
+    const response = await axiosInstance.put(`/posts/${updatedPost._id}`, postData)
+    if (response.status !== 200) {
+      throw new Error('Failed to update post')
+    }
+    dispatch(updatePostSuccess(response.data))
     dispatch(fetchAllPosts())
   } catch (error) {
     console.error('Failed to update post', error)

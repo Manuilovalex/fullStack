@@ -54,7 +54,7 @@ export const updateTodo = async (req, res, next) => {
 
 export const deleteTodo = async (req, res, next) => {
   try {
-    const result = await Todo.findByIdAndDelete(req.params.id) // Убедитесь, что используете req.params.id, а не req.params._id
+    const result = await Todo.findByIdAndDelete(req.params.id)
     if (!result) {
       return res.status(404).json({ message: 'Todo not found' })
     }

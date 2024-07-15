@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ProductInterface } from '../types/Product.interface'
 
 interface UseUpdateHook {
-  update: (product: Partial<ProductInterface>) => Promise<Partial<ProductInterface>> // Принимает частичный объект ProductInterface
+  update: (product: Partial<ProductInterface>) => Promise<Partial<ProductInterface>>
   error: string | null
 }
 
@@ -18,6 +18,7 @@ export const useUpdate = (apiUrl: string): UseUpdateHook => {
       const response = await fetch(`${apiUrl}/${product._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Включает передачу куки
         body: JSON.stringify(product)
       })
 

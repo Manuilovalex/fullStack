@@ -1,9 +1,9 @@
 import { useState, useEffect} from 'react'
-import axiosInstance from '../../utils/axiosInstance' // Импортируйте ваш настроенный axios
+import axiosInstance from '../../utils/axiosInstance'
 import { TodoProviderPropsInterface } from '../../types/todo/TodoProviderProps.interface.ts'
 import { TodoInterface } from '../../types/todo/Todo.interface.ts'
 import { TodoContext } from '../../context/TodoContext.ts'
-import { initialState } from '../../context/initialState.ts' // Импортируйте ваш initialState
+import { initialState } from '../../context/initialState.ts'
 
 const TodoProvider = ({ children }: TodoProviderPropsInterface) => {
   const [todos, setTodos] = useState<TodoInterface[]>(initialState.todos)
@@ -112,8 +112,8 @@ const TodoProvider = ({ children }: TodoProviderPropsInterface) => {
         deleteAllTodos,
         clearCompletedTodos,
         completedTodosCount,
-        isLoading, // Передано
-        error // Передано
+        isLoading,
+        error
       }}
     >
       {children}

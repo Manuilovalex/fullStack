@@ -50,7 +50,7 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
-      collectionName: 'sessions',
+      collectionName: 'sessions'
     }),
     cookie: {
       httpOnly: true,
@@ -70,15 +70,9 @@ app.use((req, res, next) => {
   next()
 })
 
-
 app.use((req, res, next) => {
   console.log('Current session:', req.session)
   console.log('Current user:', req.user)
-  next()
-})
-
-app.use((req, res, next) => {
-  console.log('Cookies from front:', req.cookies)
   next()
 })
 

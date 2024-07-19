@@ -890,13 +890,16 @@ body {
 }
 
 .registr-link h4 {
-  font-size: 18px;
+  font-size: 19px;
 }
 
 .registr-link .registr {
   background-color: #007bff;
   color: #fff;
-  width: 120px;
+  font-size: 19px;
+  text-align: center;
+  width: 160px;
+  height: 40px;
   border: none;
   border-radius: 7px;
   padding: 10px 20px;

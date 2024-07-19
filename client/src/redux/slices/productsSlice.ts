@@ -1,12 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
 import { ProductInterface } from '../../types/Product.interface'
 import { RootState } from '../store'
-
-const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3000',
-  withCredentials: true
-})
+import axiosInstance from '../../utils/axiosInstance'
 
 export const fetchAllProducts = createAsyncThunk(
   'products/fetchAll',

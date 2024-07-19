@@ -1,12 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
 import { UserInterface } from '../../types/User.interface'
 import { AppDispatch, RootState } from '../store'
-
-const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3000', 
-  withCredentials: true
-})
+import axiosInstance from '../../utils/axiosInstance'
 
 export const fetchAllUsers = createAsyncThunk('users/fetchAll', async () => {
   const response = await axiosInstance.get('/users')

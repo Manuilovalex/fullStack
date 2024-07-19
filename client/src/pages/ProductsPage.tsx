@@ -21,7 +21,6 @@ const Products = () => {
   const [name, setName] = useState('')
   const [sort, setSort] = useState('')
   const [order, setOrder] = useState('asc')
-  const [reload, setReload] = useState<string | undefined>(undefined) // Ensure that reload matches the expected type
   const [inputValue, setInputValue] = useState('')
 
   const dispatch = useDispatch<AppDispatch>()
@@ -30,8 +29,8 @@ const Products = () => {
   const error = useSelector(selectProductsError)
 
   useEffect(() => {
-    dispatch(fetchAllProducts())
-  }, [dispatch, page, name, sort, order, reload]) // Explicitly specify the type of dependencies
+    dispatch(fetchAllProducts({ page, name, sort, order }))
+  }, [dispatch, page, name, sort, order])
 
   useEffect(() => {
     console.log('Products:', products)
@@ -56,8 +55,12 @@ const Products = () => {
     setInputValue('')
   }
 
-  const handleReload = (productId: string) => {
-    setReload(productId) // Ensure setReload is called with the correct argument
+  const handleReload = async () => {
+    try {
+      await dispatch(fetchAllProducts({ page, name, sort, order }))
+    } catch (error) {
+      console.error('Failed to reload products:', error)
+    }
   }
 
   return (
@@ -109,7 +112,7 @@ const Products = () => {
 
           <ul className="products-list">
             {products.map((product: ProductInterface) => (
-              <Product key={product._id} product={product} reload={() => handleReload(product._id)} />
+              <Product key={product._id} product={product} reload={handleReload} />
             ))}
           </ul>
 

@@ -1,4 +1,4 @@
-import { FormEvent, useState, useEffect } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { UserInterface } from '../../types/User.interface'
 
 interface UserFormProps {

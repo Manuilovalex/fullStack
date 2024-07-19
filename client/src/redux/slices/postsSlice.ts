@@ -70,11 +70,10 @@ export const addPost = (newPostData: Partial<PostInterface>) => async (dispatch:
     if (response.status !== 200) {
       throw new Error('Failed to add post')
     }
-    await dispatch(addPostSuccess(response.data)) // Диспатчим экшн для успешного добавления поста
-    await dispatch(fetchAllPosts()) // Диспатчим экшн для загрузки всех постов после добавления нового поста
+    await dispatch(addPostSuccess(response.data))
+    await dispatch(fetchAllPosts())
   } catch (error) {
-    console.error('Failed to add post', error) // Обработка ошибки добавления поста
-    // Дополнительная обработка ошибок или уведомление пользователя
+    console.error('Failed to add post', error)
   }
 }
 

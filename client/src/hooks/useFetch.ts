@@ -10,7 +10,7 @@ export const useFetch = <T>(url: string, limit?: number, reload?: string) => {
     console.log(url)
 
     const fetchPosts = async () => {
-      const cancelTokenSource: CancelTokenSource = axios.CancelToken.source() // Инициализация cancelTokenSource
+      const cancelTokenSource: CancelTokenSource = axios.CancelToken.source()
 
       try {
         setIsLoading(true)
@@ -18,7 +18,7 @@ export const useFetch = <T>(url: string, limit?: number, reload?: string) => {
 
         const response = await axios.get<T[]>(limit ? `${url}?_limit=${limit}` : url, {
           cancelToken: cancelTokenSource.token,
-          withCredentials: true // Включает передачу куки
+          withCredentials: true
         })
 
         if (response.status !== 200) {
@@ -39,7 +39,7 @@ export const useFetch = <T>(url: string, limit?: number, reload?: string) => {
       }
 
       return () => {
-        cancelTokenSource.cancel('Operation canceled by the user.') // Отмена запроса при размонтировании
+        cancelTokenSource.cancel('Operation canceled by the user.')
       }
     }
 

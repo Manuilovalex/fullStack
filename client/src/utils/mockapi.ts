@@ -1,4 +1,4 @@
-export const API_URL = 'http://localhost:3000/products' // Обновите на ваш локальный сервер
+export const API_URL = 'http://localhost:3000/products'
 
 const PRODUCTS_PER_PAGE = 12
 

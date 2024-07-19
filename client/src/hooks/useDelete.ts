@@ -8,7 +8,7 @@ export const useDelete = (url: string) => {
     try {
       console.log('Deleting product with id:', id)
       const response = await axios.delete(`${url}/${id}`, {
-        withCredentials: true // Включает передачу куки
+        withCredentials: true
       })
       return response.data
     } catch (error: unknown) {

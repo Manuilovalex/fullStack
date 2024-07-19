@@ -8,9 +8,29 @@ const axiosInstance = axios.create({
   withCredentials: true
 })
 
-export const fetchAllProducts = createAsyncThunk('products/fetchAll', async () => {
-  const response = await axiosInstance.get('/products')
+export const fetchAllProducts = createAsyncThunk(
+  'products/fetchAll',
+  async ({ page, name, sort, order }: { page: number; name: string; sort: string; order: string }) => {
+    const response = await axiosInstance.get('/products', {
+      params: {
+        page,
+        name,
+        sort,
+        order
+      }
+    })
+    return response.data
+  }
+)
+
+export const updateProduct = createAsyncThunk('products/updateProduct', async (product: Partial<ProductInterface>) => {
+  const response = await axiosInstance.put(`/products/${product._id}`, product)
   return response.data
+})
+
+export const deleteProduct = createAsyncThunk('products/deleteProduct', async (id: string) => {
+  await axiosInstance.delete(`/products/${id}`)
+  return id
 })
 
 interface ProductsState {
@@ -48,6 +68,15 @@ const productsSlice = createSlice({
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.error.message || 'Failed to fetch products'
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        const index = state.products.findIndex((product) => product._id === action.payload._id)
+        if (index !== -1) {
+          state.products[index] = action.payload
+        }
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.products = state.products.filter((product) => product._id !== action.payload)
       })
   }
 })

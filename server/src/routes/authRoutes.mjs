@@ -20,16 +20,6 @@ authRouter.post('/login', (req, res, next) => {
       return res.status(200).send('User logged in successfully')
     })
   })(req, res, next)
-  // passport.authenticate('local', (err, user, info) => {
-  //   if (err) return next(err)
-  //   if (!user) return res.status(400).json({ message: 'Invalid credentials.' })
-
-  //   req.login(user, (err) => {
-  //     if (err) return next(err)
-  //     console.log('User logged in, session:', req.session)
-  //     return res.status(200).json({ message: 'Login successful.', user })
-  //   })
-  // })(req, res, next)
 })
 
 authRouter.post('/register', async (req, res, next) => {

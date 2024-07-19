@@ -1,14 +1,14 @@
-import { ProductInterface } from '../types/Product.interface.ts'
+import { ProductInterface } from '../types/Product.interface'
 import { FaTrash } from 'react-icons/fa6'
 import { FaEdit } from 'react-icons/fa'
 import { AxiosError } from 'axios'
-import { API_URL } from '../utils/mockapi.ts'
-import { useDelete } from '../hooks/useDelete.ts'
-import EditProduct from './EditProduct.tsx'
+import { API_URL } from '../utils/mockapi'
+import { useDelete } from '../hooks/useDelete'
+import EditProduct from './EditProduct'
 
 interface ProductPropsInterface {
   product: ProductInterface
-  reload: () => void
+  reload: () => Promise<void>
 }
 
 const Product = ({ product: { _id, name, description, category, price, image }, reload }: ProductPropsInterface) => {
@@ -21,7 +21,7 @@ const Product = ({ product: { _id, name, description, category, price, image }, 
   const handleDeleteProduct = async () => {
     try {
       await deleteProduct(_id)
-      reload()
+      await reload()
     } catch (error) {
       console.error((error as AxiosError).message)
     }

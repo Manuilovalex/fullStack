@@ -1,4 +1,4 @@
-import { TodoContextInterface } from "../types/todo/TodoContext.interface";
+import { TodoContextInterface } from '../types/todo/TodoContext.interface.ts'
 
 export const initialState: TodoContextInterface = {
   todos: [],
@@ -7,5 +7,7 @@ export const initialState: TodoContextInterface = {
   toggleTodo: () => {},
   deleteAllTodos: () => {},
   clearCompletedTodos: () => {},
-  completedTodosCount: 0
+  completedTodosCount: 0,
+  isLoading: false,
+  error: null
 }

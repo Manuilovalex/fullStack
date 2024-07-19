@@ -2,10 +2,12 @@ import { TodoInterface } from './Todo.interface.ts'
 
 export interface TodoContextInterface {
   todos: TodoInterface[]
-  addTodo: (todo: TodoInterface) => void
-  deleteTodo: (id: number) => void
+  addTodo: (todo: Omit<TodoInterface, 'id'>) => void
+  deleteTodo: (_id: number) => void
+  toggleTodo: (_id: number) => void
   deleteAllTodos: () => void
   clearCompletedTodos: () => void
-  toggleTodo: (id: number) => void
   completedTodosCount: number
+  isLoading: boolean
+  error: string | null
 }

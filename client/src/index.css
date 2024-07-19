@@ -56,13 +56,16 @@ label {
 }
 
 /* loading */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Высота контейнера занимает всю высоту экрана */
+}
+
 .loading {
   font-size: 3rem;
   text-align: center;
-  position: fixed;
-  top: 55%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   animation: loading 1s infinite;
 }
 
